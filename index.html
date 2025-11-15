@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Delay Master</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#050816" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <!-- iOS PWA hints -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="apple-mobile-web-app-title" content="Delay Master" />
+  <!-- You can later replace this with a real PNG icon -->
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+
+  <style>
+    :root {
+      --bg: #050816;
+      --bg-elevated: #0b1020;
+      --accent: #3b82f6;
+      --accent-soft: rgba(59, 130, 246, 0.2);
+      --text: #f9fafb;
+      --muted: #9ca3af;
+      --danger: #f97373;
+      --success: #22c55e;
+      --border: #1f2937;
+      --card-radius: 18px;
+      --shadow-soft: 0 16px 40px rgba(0, 0, 0, 0.55);
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #111827 0, #020617 48%, #000 100%);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 16px 12px 80px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 0%, #4ade80, #22c55e 40%, #16a34a 80%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 0 25px rgba(34, 197, 94, 0.6);
+    }
+
+    .logo h1 {
+      font-size: 20px;
+      margin: 0;
+    }
+
+    .logo span {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .badge {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--muted);
+    }
+
+    nav {
+      display: flex;
+      gap: 8px;
+      margin: 8px 0 18px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    nav button {
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.9);
+      padding: 8px 14px;
+      font-size: 13px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    nav button.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: #dbeafe;
+    }
+
+    nav button span.icon {
+      font-size: 15px;
+    }
+
+    .card {
+      background: radial-gradient(circle at top left, #111827, #020617 55%, #000 100%);
+      border-radius: var(--card-radius);
+      padding: 16px 16px 14px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(31, 41, 55, 0.9);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title span.icon {
+      font-size: 18px;
+    }
+
+    .card-subtitle {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .pill {
+      font-size: 11px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .pill.success {
+      color: #bbf7d0;
+      border-color: var(--success);
+      background: rgba(22, 163, 74, 0.15);
+    }
+
+    .pill.pending {
+      color: #fecaca;
+      border-color: var(--danger);
+      background: rgba(248, 113, 113, 0.1);
+    }
+
+    .label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 13px;
+    }
+
+    .list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(31, 41, 55, 0.8);
+    }
+
+    .list li:last-child {
+      border-bottom: none;
+    }
+
+    .list-main {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .list-title {
+      font-size: 13px;
+    }
+
+    .list-note {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .check-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: radial-gradient(circle, #020617, #020617);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .check-btn.done {
+      background: radial-gradient(circle at 30% 0%, #4ade80, #22c55e);
+      color: #022c22;
+      border-color: transparent;
+    }
+
+    .small {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 10px;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .chip {
+      font-size: 11px;
+      border-radius: 999px;
+      padding: 4px 9px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .view {
+      display: none;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    .calendar-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-top: 6px;
+    }
+
+    .calendar-table th,
+    .calendar-table td {
+      padding: 6px 8px;
+      border-bottom: 1px solid rgba(31, 41, 55, 0.8);
+      text-align: left;
+    }
+
+    .calendar-table th {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .calendar-table tr:nth-child(even) td {
+      background: rgba(15, 23, 42, 0.35);
+    }
+
+    .calendar-table .day-label {
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    .tag {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      margin-left: 6px;
+    }
+
+    .tag-week1 { border-color: #22c55e; color: #bbf7d0; }
+    .tag-week2 { border-color: #facc15; color: #fef9c3; }
+    .tag-week3 { border-color: #38bdf8; color: #e0f2fe; }
+    .tag-week4 { border-color: #f97316; color: #ffedd5; }
+
+    footer {
+      position: fixed;
+      bottom: 8px;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .footer-text {
+      pointer-events: auto;
+      font-size: 10px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      color: var(--muted);
+    }
+
+    @media (min-width: 768px) {
+      .app {
+        padding: 20px 24px 90px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="logo">
+        <div class="logo-icon">DM</div>
+        <div>
+          <h1>Delay Master</h1>
+          <span>30-day ejaculation control program</span>
+        </div>
+      </div>
+      <div class="badge">Gym-friendly • Dark mode</div>
+    </header>
+
+    <nav>
+      <button class="nav-btn active" data-view="today">
+        <span class="icon">📅</span> Today
+      </button>
+      <button class="nav-btn" data-view="calendar">
+        <span class="icon">🗓️</span> 30-Day Plan
+      </button>
+      <button class="nav-btn" data-view="supplements">
+        <span class="icon">💊</span> Supplements
+      </button>
+      <button class="nav-btn" data-view="info">
+        <span class="icon">ℹ️</span> Info
+      </button>
+    </nav>
+
+    <!-- TODAY VIEW -->
+    <section class="view active" id="view-today">
+      <div class="card" id="today-summary-card">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="icon">📅</span>
+            <span id="today-title">Day ? • Delay Master</span>
+          </div>
+          <span class="pill" id="today-status-pill">Pending</span>
+        </div>
+        <div class="card-subtitle" id="today-subtitle">
+          Calculating your current day in the 30-day program...
+        </div>
+      </div>
+
+      <div class="grid" id="today-tasks-container">
+        <!-- Cards injected by JS -->
+      </div>
+    </section>
+
+    <!-- CALENDAR VIEW -->
+    <section class="view" id="view-calendar">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="icon">🗓️</span> 30-Day Program Calendar
+          </div>
+          <span class="pill">Start date: 15 Nov 2025</span>
+        </div>
+        <p class="card-subtitle">
+          Tap the check icon to mark a day as completed. Progress is stored on your device (localStorage).
+        </p>
+        <table class="calendar-table" id="calendar-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Day</th>
+              <th>Focus / Activities</th>
+              <th>Done</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Rows injected by JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SUPPLEMENTS VIEW -->
+    <section class="view" id="view-supplements">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="icon">💊</span> Daily Supplement Stack
+          </div>
+          <span class="pill">Non-hormonal support</span>
+        </div>
+        <p class="card-subtitle">
+          Take with food unless otherwise advised. Always check with a doctor if you have medical conditions.
+        </p>
+        <ul class="list">
+          <li>
+            <div class="list-main">
+              <span class="list-title">L-Arginine 1000 mg – Morning</span>
+              <span class="list-note">Blood flow support, especially Weeks 1–4</span>
+            </div>
+          </li>
+          <li>
+            <div class="list-main">
+              <span class="list-title">L-Citrulline 1000 mg – Morning</span>
+              <span class="list-note">Erection quality & stamina, from Week 3 onward</span>
+            </div>
+          </li>
+          <li>
+            <div class="list-main">
+              <span class="list-title">Zinc 30 mg – Morning</span>
+              <span class="list-note">Testosterone & nerve support</span>
+            </div>
+          </li>
+          <li>
+            <div class="list-main">
+              <span class="list-title">Vitamin D3 2000 IU – Morning</span>
+              <span class="list-note">Hormones, mood & energy</span>
+            </div>
+          </li>
+          <li>
+            <div class="list-main">
+              <span class="list-title">Omega-3 (Fish oil) 1000 mg – Morning &/or Evening</span>
+              <span class="list-note">Circulation & inflammation control</span>
+            </div>
+          </li>
+          <li>
+            <div class="list-main">
+              <span class="list-title">Ashwagandha 600 mg – Evening</span>
+              <span class="list-note">Anxiety reduction & calmer arousal</span>
+            </div>
+          </li>
+          <li>
+            <div class="list-main">
+              <span class="list-title">Magnesium glycinate 200–300 mg – Evening</span>
+              <span class="list-note">Relaxation, sleep & nerve control</span>
+            </div>
+          </li>
+          <li>
+            <div class="list-main">
+              <span class="list-title">Korean Red Ginseng 500–1000 mg – Optional, Week 4</span>
+              <span class="list-note">Extra sexual performance boost</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- INFO VIEW -->
+    <section class="view" id="view-info">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="icon">ℹ️</span> How to Use Delay Master
+          </div>
+        </div>
+        <p class="card-subtitle">
+          Designed as a 30-day focused program to improve control, reduce sensitivity, and build stamina.
+        </p>
+        <ul class="list">
+          <li>
+            <div class="list-main">
+              <span class="list-title">Daily anchors</span>
+              <span class="list-note">06:30 – Pelvic floor routine • 07:15 – Control practice (start–stop / squeeze)</span>
+            </div>
+          </li>
+          <li>
+            <div class="list-main">
+              <span class="list-title">Today view</span>
+              <span class="list-note">Shows the most important actions for the current day based on the 30-day plan.</span>
+            </div>
+          </li>
+          <li>
+            <div class="list-main">
+              <span class="list-title">Calendar view</span>
+              <span class="list-note">Tap ✔ to mark a day as completed. You can still see older days for review.</span>
+            </div>
+          </li>
+          <li>
+            <div class="list-main">
+              <span class="list-title">Gym-friendly</span>
+              <span class="list-note">Use the Today view during workouts to remember PF, cardio, strength focus and control drills.</span>
+            </div>
+          </li>
+        </ul>
+        <p class="small">
+          This app does not replace medical advice. If you have persistent premature ejaculation or any pain, consult a urologist or sexual-medicine specialist.
+        </p>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    <div class="footer-text">
+      Delay Master • 30 days of consistency > one big effort.
+    </div>
+  </footer>
+
+  <script>
+    const START_DATE = new Date("2025-11-15T00:00:00");
+
+    const daysPlan = [
+      // Week 1
+      { date: "15.11.2025", label: "Day 1", week: 1, activities: "PF + Cardio 20 min", detail: "Foundation: learn pelvic floor, light cardio."},
+      { date: "16.11.2025", label: "Day 2", week: 1, activities: "PF + Strength", detail: "Full-body strength, core & glutes."},
+      { date: "17.11.2025", label: "Day 3", week: 1, activities: "PF + Light Walk", detail: "Recovery & pelvic control."},
+      { date: "18.11.2025", label: "Day 4", week: 1, activities: "PF + Strength + SS", detail: "Strength + short start–stop session."},
+      { date: "19.11.2025", label: "Day 5", week: 1, activities: "PF + Cardio 20–25 min", detail: "Build basic endurance."},
+      { date: "20.11.2025", label: "Day 6", week: 1, activities: "PF + Strength + SS", detail: "Strength + control practice."},
+      { date: "21.11.2025", label: "Day 7", week: 1, activities: "PF + Light", detail: "Walk/recovery, review week."},
+      // Week 2
+      { date: "22.11.2025", label: "Day 8", week: 2, activities: "PF + Cardio 25 min", detail: "Increase PF reps & cardio."},
+      { date: "23.11.2025", label: "Day 9", week: 2, activities: "PF + Strength", detail: "Full-body strength & core."},
+      { date: "24.11.2025", label: "Day 10", week: 2, activities: "PF + Walk", detail: "Recovery walk + PF work."},
+      { date: "25.11.2025", label: "Day 11", week: 2, activities: "PF + Strength + SS + SQ", detail: "Add squeeze technique with start–stop."},
+      { date: "26.11.2025", label: "Day 12", week: 2, activities: "PF + Cardio 25–30 min", detail: "Longer cardio, calm breathing."},
+      { date: "27.11.2025", label: "Day 13", week: 2, activities: "PF + Strength + SS", detail: "Strength + edging 15–20 min."},
+      { date: "28.11.2025", label: "Day 14", week: 2, activities: "PF + Light", detail: "Recovery + sleep focus."},
+      // Week 3
+      { date: "29.11.2025", label: "Day 15", week: 3, activities: "PF + Cardio 25–30 min", detail: "Higher endurance + mental control."},
+      { date: "30.11.2025", label: "Day 16", week: 3, activities: "PF + Strength + Core", detail: "Core stability for stamina."},
+      { date: "01.12.2025", label: "Day 17", week: 3, activities: "PF + Yoga + SS", detail: "Hip mobility + edging."},
+      { date: "02.12.2025", label: "Day 18", week: 3, activities: "PF + Intervals", detail: "Interval cardio."},
+      { date: "03.12.2025", label: "Day 19", week: 3, activities: "PF + Strength + SS", detail: "Strength + longer edging (20–25 min)."},
+      { date: "04.12.2025", label: "Day 20", week: 3, activities: "PF + Yoga", detail: "Deep relaxation & pelvic release."},
+      { date: "05.12.2025", label: "Day 21", week: 3, activities: "PF + Cardio", detail: "Steady-state cardio."},
+      // Week 4
+      { date: "06.12.2025", label: "Day 22", week: 4, activities: "PF + Strength + Cardio", detail: "Performance week starts."},
+      { date: "07.12.2025", label: "Day 23", week: 4, activities: "PF + Core + Cardio", detail: "Core + endurance focus."},
+      { date: "08.12.2025", label: "Day 24", week: 4, activities: "PF + Light + SS", detail: "Light movement + long edging session."},
+      { date: "09.12.2025", label: "Day 25", week: 4, activities: "PF + Strength", detail: "Higher-intensity strength."},
+      { date: "10.12.2025", label: "Day 26", week: 4, activities: "PF + Cardio 30–35 min", detail: "Longest cardio session."},
+      { date: "11.12.2025", label: "Day 27", week: 4, activities: "PF + Light", detail: "Deload, relax, sleep."},
+      { date: "12.12.2025", label: "Day 28", week: 4, activities: "PF + Test Day", detail: "Test control (solo or with partner)."},
+      { date: "13.12.2025", label: "Day 29", week: 4, activities: "PF + Light", detail: "Light work, stretch, breathe."},
+      { date: "14.12.2025", label: "Day 30", week: 4, activities: "PF + Final Long SS", detail: "Long edging session, review progress."}
+    ];
+
+    function weekTag(week) {
+      const base = "tag ";
+      if (week === 1) return base + "tag-week1";
+      if (week === 2) return base + "tag-week2";
+      if (week === 3) return base + "tag-week3";
+      return base + "tag-week4";
+    }
+
+    function getCompletionKey(dayIndex) {
+      return `delayMaster_day_${dayIndex}`;
+    }
+
+    function isDayDone(dayIndex) {
+      return localStorage.getItem(getCompletionKey(dayIndex)) === "1";
+    }
+
+    function setDayDone(dayIndex, done) {
+      localStorage.setItem(getCompletionKey(dayIndex), done ? "1" : "0");
+    }
+
+    function renderCalendar() {
+      const tbody = document.querySelector("#calendar-table tbody");
+      tbody.innerHTML = "";
+      daysPlan.forEach((day, idx) => {
+        const tr = document.createElement("tr");
+
+        const tdDate = document.createElement("td");
+        tdDate.textContent = day.date;
+        tr.appendChild(tdDate);
+
+        const tdDay = document.createElement("td");
+        tdDay.innerHTML = `<span class="day-label">${day.label}</span> <span class="${weekTag(day.week)}">Week ${day.week}</span>`;
+        tr.appendChild(tdDay);
+
+        const tdAct = document.createElement("td");
+        tdAct.textContent = day.activities + " – " + day.detail;
+        tr.appendChild(tdAct);
+
+        const tdDone = document.createElement("td");
+        const btn = document.createElement("button");
+        btn.className = "check-btn" + (isDayDone(idx) ? " done" : "");
+        btn.textContent = isDayDone(idx) ? "✔" : "•";
+        btn.addEventListener("click", () => {
+          const currentlyDone = isDayDone(idx);
+          setDayDone(idx, !currentlyDone);
+          btn.classList.toggle("done", !currentlyDone);
+          btn.textContent = !currentlyDone ? "✔" : "•";
+          updateTodayStatus();
+        });
+        tdDone.appendChild(btn);
+        tr.appendChild(tdDone);
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function getProgramDay(today = new Date()) {
+      const d = new Date(today);
+      d.setHours(0, 0, 0, 0);
+      const diffMs = d.getTime() - START_DATE.getTime();
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      return diffDays; // 0-based index
+    }
+
+    function renderToday() {
+      const todayIndex = getProgramDay(new Date());
+      const titleEl = document.getElementById("today-title");
+      const subtitleEl = document.getElementById("today-subtitle");
+      const container = document.getElementById("today-tasks-container");
+
+      container.innerHTML = "";
+
+      if (todayIndex < 0) {
+        titleEl.textContent = "Program hasn't started yet";
+        subtitleEl.textContent = "Your 30-day plan begins on 15 November 2025.";
+        document.getElementById("today-status-pill").textContent = "Not started";
+        document.getElementById("today-status-pill").className = "pill";
+        return;
+      }
+
+      if (todayIndex > 29) {
+        titleEl.textContent = "Program complete";
+        subtitleEl.textContent = "You’ve finished the 30 days. You can repeat or just keep the best habits.";
+        document.getElementById("today-status-pill").textContent = "Done";
+        document.getElementById("today-status-pill").className = "pill success";
+        return;
+      }
+
+      const day = daysPlan[todayIndex];
+      titleEl.textContent = `${day.label} • Week ${day.week}`;
+      subtitleEl.textContent = `${day.date} – Focus: ${day.activities}`;
+
+      // Build Today cards
+      // Card 1 – Morning anchors
+      const morningCard = document.createElement("div");
+      morningCard.className = "card";
+      morningCard.innerHTML = `
+        <div class="card-header">
+          <div class="card-title">
+            <span class="icon">⏰</span> Morning anchors
+          </div>
+          <span class="pill">Consistency > perfection</span>
+        </div>
+        <div class="label">Times</div>
+        <ul class="list">
+          <li>
+            <div class="list-main">
+              <span class="list-title">06:30 – Pelvic floor routine (PF)</span>
+              <span class="list-note">Slow + fast Kegels and reverse Kegels as per week.</span>
+            </div>
+          </li>
+          <li>
+            <div class="list-main">
+              <span class="list-title">07:15 – Ejaculation control practice</span>
+              <span class="list-note">Start–stop (and squeeze from Week 2+) 10–30 min depending on week.</span>
+            </div>
+          </li>
+        </ul>
+      `;
+      container.appendChild(morningCard);
+
+      // Card 2 – Training focus
+      const trainingCard = document.createElement("div");
+      trainingCard.className = "card";
+      trainingCard.innerHTML = `
+        <div class="card-header">
+          <div class="card-title">
+            <span class="icon">🏋️</span> Training focus
+          </div>
+          <span class="pill">Gym-friendly</span>
+        </div>
+        <div class="label">Today</div>
+        <div class="chip-row">
+          <span class="chip">${day.activities}</span>
+          <span class="chip">PF every day</span>
+          <span class="chip">Deep breathing</span>
+        </div>
+        <p class="small" style="margin-top:8px;">
+          Use this during your gym session: prioritize PF, core, glutes and steady cardio.
+        </p>
+      `;
+      container.appendChild(trainingCard);
+
+      // Card 3 – Supplements quick check
+      const suppCard = document.createElement("div");
+      suppCard.className = "card";
+      suppCard.innerHTML = `
+        <div class="card-header">
+          <div class="card-title">
+            <span class="icon">💊</span> Supplement checklist
+          </div>
+          <span class="pill">AM / PM</span>
+        </div>
+        <ul class="list">
+          <li><div class="list-main"><span class="list-title">Morning</span><span class="list-note">Arginine, Citrulline (Week 3+), Zinc, Vitamin D3, Omega-3.</span></div></li>
+          <li><div class="list-main"><span class="list-title">Evening</span><span class="list-note">Ashwagandha, Magnesium, optional Omega-3, Ginseng (Week 4).</span></div></li>
+        </ul>
+      `;
+      container.appendChild(suppCard);
+
+      updateTodayStatus();
+    }
+
+    function updateTodayStatus() {
+      const todayIndex = getProgramDay(new Date());
+      const pill = document.getElementById("today-status-pill");
+
+      if (todayIndex < 0) return;
+      if (todayIndex > 29) return;
+
+      const done = isDayDone(todayIndex);
+      if (done) {
+        pill.textContent = "Completed";
+        pill.className = "pill success";
+      } else {
+        pill.textContent = "Pending";
+        pill.className = "pill pending";
+      }
+    }
+
+    function initNav() {
+      const buttons = document.querySelectorAll(".nav-btn");
+      const views = {
+        today: document.getElementById("view-today"),
+        calendar: document.getElementById("view-calendar"),
+        supplements: document.getElementById("view-supplements"),
+        info: document.getElementById("view-info")
+      };
+
+      buttons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          buttons.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+
+          const viewName = btn.getAttribute("data-view");
+          Object.keys(views).forEach(name => {
+            views[name].classList.toggle("active", name === viewName);
+          });
+        });
+      });
+    }
+
+    function registerServiceWorker() {
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("service-worker.js").catch(err => {
+          console.log("SW registration failed", err);
+        });
+      }
+    }
+
+    // Init
+    renderCalendar();
+    renderToday();
+    initNav();
+    registerServiceWorker();
+  </script>
+</body>
+</html>
